@@ -27,8 +27,6 @@
 	3	ice
 	4	spring
 
-	
-
 
 ## misc
 
@@ -37,3 +35,20 @@
 	And jumping on a spring, 6 blocks too.
 	The water is useful for "fly".
 	If you alternate ground and air, you can run over there without falling.
+
+
+## keybindings
+
+	          left  right  jump
+	player 1  left  right  up
+	player 2  a     d      w
+	player 3  j     l      i
+	player 4  kp4   kp6    kp8
+
+
+## relevant source files
+
+* [globals.pre](http://git.icculus.org/?p=crow/jumpnbump.git;a=blob_plain;f=globals.pre;hb=e2bcb0a928cee4190ef0b86b06eb7ec083bf23f8)
+* [main.c](http://git.icculus.org/?p=crow/jumpnbump.git;a=blob_plain;f=main.c;hb=e2bcb0a928cee4190ef0b86b06eb7ec083bf23f8)
+* ([menu.c](http://git.icculus.org/?p=crow/jumpnbump.git;a=blob_plain;f=menu.c;hb=e2bcb0a928cee4190ef0b86b06eb7ec083bf23f8))
+* ([fireworks.c](http://git.icculus.org/?p=crow/jumpnbump.git;a=blob_plain;f=fireworks.c;hb=e2bcb0a928cee4190ef0b86b06eb7ec083bf23f8))
