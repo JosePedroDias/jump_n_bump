@@ -22,7 +22,7 @@
 	var textures = {};
 	var sheets = {};
 	var sounds = {};
-	window.sounds = sounds;
+	//window.sounds = sounds;
 
 
 
@@ -36,7 +36,7 @@
 
 	var readSpriteSheets = function(cb) {
 		var urls = [
-			'assets/gfx/levelmap.txt',
+			'assets/levelmap.txt',
 			'assets/gfx/sprites/font.json',
 			'assets/gfx/sprites/numbers.json',
 			'assets/gfx/sprites/objects.json',
