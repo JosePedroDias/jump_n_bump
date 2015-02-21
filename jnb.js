@@ -22,6 +22,14 @@
 	var textures = {};
 	var sheets = {};
 	var sounds = {};
+	var players = [];
+	var bindings = [
+		{l:'left', r:'right', j:'up'},
+		{l:'a',    r:'d',     j:'w'},
+		{l:'j',    r:'l',     j:'i'},
+		{l:'num4', r:'num6',  j:'num8'}
+	];
+
 	//window.sounds = sounds;
 
 
@@ -97,6 +105,44 @@
 
 
 
+	var createPlayer = function(idx) {
+		var tex = sheets.rabbit.splice(0, 18);
+		var spr = new PIXI.Sprite(tex[0]);
+		spr.position.x = W/2;
+		spr.position.y = H/2;
+
+		var o = {
+			kcL: keys.keyCodes[ bindings[idx].l ],
+			kcR: keys.keyCodes[ bindings[idx].r ],
+			kcJ: keys.keyCodes[ bindings[idx].j ],
+			active: true,
+			textures: tex,
+			sprite:   spr,
+			animName: 'stand_r',
+			animStep: 0,
+			animSubStepsLeft: 0,
+
+			processSprite: function() {
+				if (!this.sprite) {
+					var anim = rabbitStates[ this.animName ];
+					if (typeof anim === 'number') {
+						animSubStepsLeft = -1;
+					}
+					else {
+						// TODO
+					}
+					var animI = anim;
+					this.sprite.texture = this.textures[ animI ];
+				}
+			}
+		};
+		stage.addChild(o.sprite);
+
+		return o;
+	};
+
+
+
 	var onSpriteSheetsLoaded = function(err, res) {
 		if (err) { return window.alert(err); }
 
@@ -126,9 +172,12 @@
 		//var s = new PIXI.Sprite( sheets.numbers[1] ); stage.addChild(s); // 0-9
 		//var s = new PIXI.Sprite( sheets.font[30] ); s.position = new PIXI.Point(30, 30); stage.addChild(s); // 0-80
 		//var s = new PIXI.Sprite( sheets.objects[0] ); stage.addChild(s); // 0-80
-		//var s = new PIXI.Sprite( sheets.rabbit[0] ); stage.addChild(s); // 0-71
+		//var s = new PIXI.Sprite( sheets.rabbit[0] ); stage.addChild(s); // 0-71 (18x4)
 
 		loadSfx();
+
+		players.push( createPlayer(0) );
+		players.push( createPlayer(1) );
 
 		requestAnimFrame( animate );
 
@@ -165,6 +214,9 @@
 	};
 
 
+	var elInArr = function(el, arr) {
+		return arr.indexOf(el) !== -1;
+	};
 
 	var animate = function(t) {
 		requestAnimFrame( animate );
@@ -174,8 +226,18 @@
 		t0 = t;
 		//log(t, dt);
 
+
+		var downKeys = keys.getDownKeys();
+
 		
 		// UPDATE
+		players.forEach(function(pl) {
+			var dx = elInArr(pl.kcL, downKeys) ? -1 : (elInArr(pl.kcR, downKeys) ? 1 : 0);
+			var dy = elInArr(pl.kcJ, downKeys) ? -1 : 0;
+			pl.sprite.position.x += dx;
+			pl.sprite.position.y += dy;
+		});
+
 
 		renderer.render(stage);
 	};

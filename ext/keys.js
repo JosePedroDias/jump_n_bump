@@ -4,7 +4,7 @@
 
 	var noop = function() {};
 
-	var IS_KEY_DOWN = {};
+	var DOWN_KEYS = {};
 
 	var KEY_CODES = { // http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
 		backspace:   8,
@@ -127,23 +127,24 @@
 
 	window.addEventListener('keydown', function(ev) {
 		var kc = ev.keyCode;
-		IS_KEY_DOWN[kc] = true;
+		DOWN_KEYS[kc] = true;
 		if ( CBS.onKeyDown(kc) ) { stop(ev); }
 	});
 
 	window.addEventListener('keyup', function(ev) {
 		var kc = ev.keyCode;
-		IS_KEY_DOWN[kc] = false;
+		delete DOWN_KEYS[kc];
 		if ( CBS.onKeyUp(kc) ) { stop(ev); }
 	});
 
 
+	var toInt = function(n) { return parseInt(n, 10); };
 
 	window.keys = {
-		onKeyDown:   function(cb) { CBS.onKeyDown = cb;                  },
-		onKeyUp:     function(cb) { CBS.onKeyUp   = cb;                  },
-		isKeyDown:   function(kc) { return !!IS_KEY_DOWN[kc];            },
-		getDownKeys: function() {   var down = Object.keys(IS_KEY_DOWN); },
+		onKeyDown:   function(cb) { CBS.onKeyDown = cb; },
+		onKeyUp:     function(cb) { CBS.onKeyUp   = cb; },
+		isKeyDown:   function(kc) { return !!DOWN_KEYS[kc]; },
+		getDownKeys: function() {   return Object.keys(DOWN_KEYS).map(toInt); },
 		keyCodes:    KEY_CODES,
 		keyNames:    KEY_NAMES
 	};
