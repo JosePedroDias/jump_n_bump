@@ -131,6 +131,12 @@
 		loadSfx();
 
 		requestAnimFrame( animate );
+
+		/*
+		keys.onKeyDown(function(code) {
+			console.log( keys.keyNames[code] );
+			return true;
+		});*/
 	};
 
 
