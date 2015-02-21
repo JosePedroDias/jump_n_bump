@@ -1,0 +1,22 @@
+html, body {
+	height: 100%;
+}
+
+body {
+	overflow: hidden;
+	background-color: #DDD;
+}
+
+canvas {
+	position: absolute;
+	left: 50%;
+	top:  50%;
+	margin-left: -200px;
+	margin-top:  -128px;
+	
+	/*transform: scale(2);*/
+
+	image-rendering: -moz-crisp-edges; /* firefox */
+	-ms-interpolation-mode: nearest-neighbor; /* ie */
+	image-rendering: pixelated; /* chrome 41 */
+}
