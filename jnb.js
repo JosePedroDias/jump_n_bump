@@ -113,6 +113,8 @@
 		spr.position.y = H/2;
 
 		var o = {
+			index: idx,
+			score: 0,
 			kcL: keys.keyCodes[ bindings[idx].l ],
 			kcR: keys.keyCodes[ bindings[idx].r ],
 			kcJ: keys.keyCodes[ bindings[idx].j ],
@@ -123,18 +125,42 @@
 			animStep: 0,
 			animSubStepsLeft: 0,
 
+			incrScore: function() {
+				++this.score;
+				updateScore(this.index, this.score);
+			},
+			getDir: function() {
+				return this.animName[ this.animName.length-1 ];
+			},
+			getAnim: function() {
+				return this.animName;
+			},
+			setAnim: function(animName) {
+				//console.log(animName);
+				this.animName = animName;
+				this.animStep = 0;
+				this.animSubStepsLeft = 0;
+			},
 			processSprite: function() {
-				if (!this.sprite) {
-					var anim = rabbitStates[ this.animName ];
-					if (typeof anim === 'number') {
-						animSubStepsLeft = -1;
-					}
-					else {
-						// TODO
-					}
-					var animI = anim;
-					this.sprite.texture = this.textures[ animI ];
+				var pair, animI, anim = rabbitStates[ this.animName ];
+				if (typeof anim === 'number') {
+					animI = anim;
 				}
+				else {
+					this.animSubStepsLeft -= 20;
+					//console.log(this.animName, this.animStep, this.animSubStepsLeft);
+					if (this.animSubStepsLeft < 0) {
+						++this.animStep;
+						if (this.animStep >= anim.length) {
+							this.animStep = 0;
+						}
+						pair = anim[ this.animStep ];
+						this.animSubStepsLeft = pair[1];
+						animI = pair[0];
+					}
+					else { return; }
+				}
+				this.sprite.texture = this.textures[ animI ];
 			}
 		};
 		stage.addChild(o.sprite);
@@ -194,7 +220,7 @@
 		for (k in res) {
 			v = res[k];
 			f = rgx.exec(k)[1];
-			//console.log(k, f);
+			
 			if (f === 'levelmap') {
 				levelMap = v.split('\n').map(function(line) {
 					return line.split('').map(function(s) { return parseInt(s, 10); });
@@ -208,11 +234,6 @@
 			}
 		}
 
-		//console.log('levelMap', levelMap);
-		//console.log('rabbitStates', rabbitStates);
-		//console.log('sheets', sheets);
-
-		//var s = new PIXI.Sprite( sheets.numbers[1] ); stage.addChild(s); // 0-9
 		//var s = new PIXI.Sprite( sheets.font[30] ); s.position = new PIXI.Point(30, 30); stage.addChild(s); // 0-80
 		//var s = new PIXI.Sprite( sheets.objects[0] ); stage.addChild(s); // 0-80
 		//var s = new PIXI.Sprite( sheets.rabbit[0] ); stage.addChild(s); // 0-71 (18x4)
@@ -220,9 +241,9 @@
 		loadSfx();
 
 		players.push( createPlayer(0) );
-		players.push( createPlayer(1) );
-		players.push( createPlayer(2) );
-		players.push( createPlayer(3) );
+		//players.push( createPlayer(1) );
+		//players.push( createPlayer(2) );
+		//players.push( createPlayer(3) );
 
 		var levelFg = new PIXI.Sprite( textures.levelFg );
 		stage.addChild(levelFg);
@@ -236,11 +257,42 @@
 
 		requestAnimFrame( animate );
 
-		/*
-		keys.onKeyDown(function(code) {
-			console.log( keys.keyNames[code] );
-			return true;
-		});*/
+		setTimeout(function() {
+			playSound(sounds.bumpM, 0);
+		}, 1500);
+
+
+
+		keys.onKeyDown(function(kc) {
+			players.some(function(pl) {
+				if (kc === pl.kcL) {
+					pl.setAnim('walk_l'); return true;
+				}
+				else if (kc === pl.kcR) {
+					pl.setAnim('walk_r'); return true;
+				}
+				else if (kc === pl.kcJ) {
+					pl.setAnim('jump_' + pl.getDir()); playSound(sounds.jump, 0); pl.incrScore(); return true;	
+				}
+			});
+		});
+
+		keys.onKeyUp(function(kc) {
+			players.some(function(pl) {
+				if (kc === pl.kcJ) {
+					if (pl.dx === 0) {
+						pl.setAnim('stand_' + pl.getDir());
+					}
+					else {
+						pl.setAnim('walk_' + pl.getDir());
+					}
+					return true;
+				}
+				else if (kc === pl.kcL || kc === pl.kcR) {
+					pl.setAnim('stand_' + pl.getDir()); return true;
+				}
+			});
+		});
 	};
 
 
@@ -277,17 +329,15 @@
 		var dt = t - t0;
 		t0 = t;
 		//log(t, dt);
-
-
-		var downKeys = keys.getDownKeys();
-
 		
 		// UPDATE
 		players.forEach(function(pl) {
-			var dx = elInArr(pl.kcL, downKeys) ? -1 : (elInArr(pl.kcR, downKeys) ? 1 : 0);
-			var dy = elInArr(pl.kcJ, downKeys) ? -1 : 0;
-			pl.sprite.position.x += dx;
-			pl.sprite.position.y += dy;
+			pl.dx = keys.isKeyDown(pl.kcL) ? -1 : (keys.isKeyDown(pl.kcR) ? 1 : 0);
+			pl.dy = keys.isKeyDown(pl.kcJ) ? -1 : 0;
+			//if (dy === -1) { playSound(sounds.jump, 0);}
+			pl.sprite.position.x += pl.dx;
+			pl.sprite.position.y += pl.dy;
+			pl.processSprite();
 		});
 
 

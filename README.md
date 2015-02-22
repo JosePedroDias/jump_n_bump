@@ -14,7 +14,9 @@ original game repos: <http://git.icculus.org/?p=crow/jumpnbump.git>
 * ~~display/update counters~~
 * ~~display player sprites~~
 * ~~move players~~
-* animate players
-* collisions
+* ~~animate players~~
+* collisions with map
+* special platform behaviours (ice, water, spring...)
+* frags
 * particles
 * menu screen

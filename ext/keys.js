@@ -127,12 +127,14 @@
 
 	window.addEventListener('keydown', function(ev) {
 		var kc = ev.keyCode;
+		if (DOWN_KEYS[kc]) { return; }
 		DOWN_KEYS[kc] = true;
 		if ( CBS.onKeyDown(kc) ) { stop(ev); }
 	});
 
 	window.addEventListener('keyup', function(ev) {
 		var kc = ev.keyCode;
+		if (!DOWN_KEYS[kc]) { return; }
 		delete DOWN_KEYS[kc];
 		if ( CBS.onKeyUp(kc) ) { stop(ev); }
 	});
