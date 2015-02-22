@@ -23,6 +23,7 @@
 	var sheets = {};
 	var sounds = {};
 	var players = [];
+	var scoreNums = [];
 	var bindings = [
 		{l:'left', r:'right', j:'up'},
 		{l:'a',    r:'d',     j:'w'},
@@ -142,6 +143,48 @@
 	};
 
 
+	var updateScore = function(playerIdx, score) {
+		var playerNums = scoreNums[playerIdx];
+		var units = score % 10;
+		var tens = ~~(score / 10);
+		playerNums[0].texture = sheets.numbers[ tens ];
+		playerNums[1].texture = sheets.numbers[ units ];
+	};
+
+
+	var setupScores = function() {
+		var g = new PIXI.Graphics();
+		var s, nums = [], playerNums;
+
+		g.beginFill(0x606060);
+		var x, y;
+		x = 400-40;
+		for (var i = 0; i < 4; ++i) {
+			y = 34+i*64;
+			g.drawRect(x, y, S*2, 22);
+
+			playerNums = [];
+
+			s = new PIXI.Sprite( sheets.numbers[0] );
+			s.position.set(x, y);
+			nums.push(s);
+			playerNums.push(s);
+
+			s = new PIXI.Sprite( sheets.numbers[0] );
+			s.position.set(x+S, y);
+			nums.push(s);
+			playerNums.push(s);
+
+			scoreNums.push(playerNums);
+		}
+		stage.addChild(g);
+
+		nums.forEach(function(s) {
+			stage.addChild(s);
+		});
+	};
+
+
 
 	var onSpriteSheetsLoaded = function(err, res) {
 		if (err) { return window.alert(err); }
@@ -178,6 +221,18 @@
 
 		players.push( createPlayer(0) );
 		players.push( createPlayer(1) );
+		players.push( createPlayer(2) );
+		players.push( createPlayer(3) );
+
+		var levelFg = new PIXI.Sprite( textures.levelFg );
+		stage.addChild(levelFg);
+
+		setupScores();
+
+		/*updateScore(0, 12);
+		updateScore(1, 34);
+		updateScore(2, 56);
+		updateScore(3, 78);*/
 
 		requestAnimFrame( animate );
 
@@ -204,9 +259,6 @@
 
 		var levelBg = new PIXI.Sprite( textures.levelBg );
 		stage.addChild(levelBg);
-		
-		var levelFg = new PIXI.Sprite( textures.levelFg );
-		stage.addChild(levelFg);
 
 		document.body.appendChild(renderer.view);
 

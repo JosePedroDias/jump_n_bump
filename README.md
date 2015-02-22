@@ -11,9 +11,10 @@ original game repos: <http://git.icculus.org/?p=crow/jumpnbump.git>
 * ~~load images~~
 * ~~load sprites and sheets~~
 * ~~load gfx~~
-* display player sprites
-* display/update counters
-* move players
+* ~~display/update counters~~
+* ~~display player sprites~~
+* ~~move players~~
+* animate players
 * collisions
 * particles
 * menu screen
