@@ -84,7 +84,7 @@
 
 
 
-	var loadSfx = function() {
+	var loadSfx = function(cb) {
 		var preM = 'assets/sfx/music/';
 		var preS = 'assets/sfx/samples/';
 		var suf = '.ogg';
@@ -101,7 +101,7 @@
 			spring: preS + 'spring' + suf
 		};
 
-		loadSounds(sounds, map);
+		loadSounds(sounds, map, cb);
 	};
 
 
@@ -212,34 +212,7 @@
 
 
 
-	var onSpriteSheetsLoaded = function(err, res) {
-		if (err) { return window.alert(err); }
-
-		var k, v, f, rgx = /([a-z]+)\.[a-z]+$/i;
-
-		for (k in res) {
-			v = res[k];
-			f = rgx.exec(k)[1];
-			
-			if (f === 'levelmap') {
-				levelMap = v.split('\n').map(function(line) {
-					return line.split('').map(function(s) { return parseInt(s, 10); });
-				});
-			}
-			else if (f === 'rabbitStates') {
-				rabbitStates = v;
-			}
-			else {
-				sheets[f] = processSpriteSheet(textures[f], v);
-			}
-		}
-
-		//var s = new PIXI.Sprite( sheets.font[30] ); s.position = new PIXI.Point(30, 30); stage.addChild(s); // 0-80
-		//var s = new PIXI.Sprite( sheets.objects[0] ); stage.addChild(s); // 0-80
-		//var s = new PIXI.Sprite( sheets.rabbit[0] ); stage.addChild(s); // 0-71 (18x4)
-
-		loadSfx();
-
+	var onSfxLoaded = function() {
 		players.push( createPlayer(0) );
 		//players.push( createPlayer(1) );
 		//players.push( createPlayer(2) );
@@ -295,6 +268,36 @@
 		});
 	};
 
+
+
+	var onSpriteSheetsLoaded = function(err, res) {
+		if (err) { return window.alert(err); }
+
+		var k, v, f, rgx = /([a-z]+)\.[a-z]+$/i;
+
+		for (k in res) {
+			v = res[k];
+			f = rgx.exec(k)[1];
+			
+			if (f === 'levelmap') {
+				levelMap = v.split('\n').map(function(line) {
+					return line.split('').map(function(s) { return parseInt(s, 10); });
+				});
+			}
+			else if (f === 'rabbitStates') {
+				rabbitStates = v;
+			}
+			else {
+				sheets[f] = processSpriteSheet(textures[f], v);
+			}
+		}
+
+		//var s = new PIXI.Sprite( sheets.font[30] ); s.position = new PIXI.Point(30, 30); stage.addChild(s); // 0-80
+		//var s = new PIXI.Sprite( sheets.objects[0] ); stage.addChild(s); // 0-80
+		//var s = new PIXI.Sprite( sheets.rabbit[0] ); stage.addChild(s); // 0-71 (18x4)
+
+		loadSfx(onSfxLoaded);
+	};
 
 
 
