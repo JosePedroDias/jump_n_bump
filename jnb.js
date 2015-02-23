@@ -17,6 +17,16 @@
 	var t0 = -1/30;
 
 
+
+	// levelMap possibilities
+	var BAN_VOID   = 0;
+	var BAN_SOLID  = 1;
+	var BAN_WATER  = 2;
+	var BAN_ICE	   = 3;
+	var BAN_SPRING = 4;
+
+
+
 	var stage;
 	var renderer;
 	var levelMap;
@@ -34,6 +44,12 @@
 	];
 
 	//window.sounds = sounds;
+
+
+
+	var rnd = function(n) {
+		return ~~( Math.random() * n );
+	};
 
 
 
@@ -210,6 +226,28 @@
 		nums.forEach(function(s) {
 			stage.addChild(s);
 		});
+	};
+
+
+	var positionPlayer = function(playerNum) { // TODO UNFINISHED
+		var x, y, pl = players[playerNum];
+
+		while (true) {
+			while (true) { // choose position in void and below solid or ice
+				x = rnd(W);
+				y = rnd(H);
+				if (levelMap[y][x] === BAN_VOID &&
+					( levelMap[y+1][x] === BAN_SOLID || levelMap[y+1][x] === BAN_ICE ) ) { break; }
+			}
+
+			if (players.some(function(pll) { // check player to player collisions
+				if (pll === pl) { return; }
+				//if (Math.abs()) // TODO
+			})) { break; }
+			else {
+				return; // all is well...
+			}
+		}
 	};
 
 

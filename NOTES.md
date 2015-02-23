@@ -57,6 +57,16 @@
 ## relevant source files
 
 * [globals.pre](http://git.icculus.org/?p=crow/jumpnbump.git;a=blob_plain;f=globals.pre;hb=e2bcb0a928cee4190ef0b86b06eb7ec083bf23f8)
+	* _
+
 * [main.c](http://git.icculus.org/?p=crow/jumpnbump.git;a=blob_plain;f=main.c;hb=e2bcb0a928cee4190ef0b86b06eb7ec083bf23f8)
+	* game_loop()
+	* steer_players()
+	* position_player(playerNum)
+	* collision_check()
+
 * ([menu.c](http://git.icculus.org/?p=crow/jumpnbump.git;a=blob_plain;f=menu.c;hb=e2bcb0a928cee4190ef0b86b06eb7ec083bf23f8))
+	* _
+
 * ([fireworks.c](http://git.icculus.org/?p=crow/jumpnbump.git;a=blob_plain;f=fireworks.c;hb=e2bcb0a928cee4190ef0b86b06eb7ec083bf23f8))
+	* _
