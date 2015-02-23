@@ -61,10 +61,15 @@
 
 * [main.c](http://git.icculus.org/?p=crow/jumpnbump.git;a=blob_plain;f=main.c;hb=e2bcb0a928cee4190ef0b86b06eb7ec083bf23f8)
 	* game_loop()
-	* position_player(playerNum)
-	* player\_action\_left(playerNum) and player\_action\_right(playerNum)
-	* steer_players()
-	* collision_check()
+	* `PORTED` GET_BAN_MAP_XY define
+	* `PORTED` GET_BAN_MAP_IN_WATER define
+	* `PORTED` position_player(playerNum)
+	* `PORTED` get\_closest\_player\_to\_point()
+	* `TODO` player\_action\_left(playerNum) and player\_action\_right(playerNum)
+	* `TODO` steer_players()
+	* `TODO` collision_check()
+	
+	functions ported
 
 * ([menu.c](http://git.icculus.org/?p=crow/jumpnbump.git;a=blob_plain;f=menu.c;hb=e2bcb0a928cee4190ef0b86b06eb7ec083bf23f8))
 	* _
