@@ -42,14 +42,6 @@
 	};
 
 	// #define GET_BAN_MAP_IN_WATER(s1, s2)
-	/*(
-		GET_BAN_MAP_XY( (s1),       ((s2) + 7)) == BAN_VOID ||
-		GET_BAN_MAP_XY(((s1) + 15), ((s2) + 7)) == BAN_VOID
-	) &&
-	(
-		GET_BAN_MAP_XY( (s1),       ((s2) + 8)) == BAN_WATER ||
-		GET_BAN_MAP_XY(((s1) + 15), ((s2) + 8)) == BAN_WATER
-	)*/
 	var isXyInWater = function(x, y) {
 		return (
 			(
@@ -301,13 +293,14 @@
 
 
 
+	// get_closest_player_to_point
 	var closestPlayerToPoint = function(x, y) {
 		var closestPlayer, closestDistSquared = Number.MAX_VALUE;
 
 		players.forEach(function(pl) {
 			if (!pl.enabled) { return; }
-			var dx = (x - ((pl.sprite.position.x >> 16) + 8));
-			var dy = (y - ((pl.sprite.position.y >> 16) + 8));
+			var dx = (x - ((pl.sprite.position.x /*>> 16*/) + 8));
+			var dy = (y - ((pl.sprite.position.y /*>> 16*/) + 8));
 			var distSquared = dx*dx + dy*dy;
 			if (distSquared < closestDistSquared) {
 				closestPlayer = pl;
@@ -331,10 +324,7 @@
 		createPlayer();
 		createPlayer();
 
-		/*players.push( createPlayer(0) );
-		players.push( createPlayer(1) );
-		players.push( createPlayer(2) );
-		players.push( createPlayer(3) );*/
+		//console.log('closest to center: ', closestPlayerToPoint(W/2, H/2) );
 
 		var levelFg = new PIXI.Sprite( textures.levelFg );
 		stage.addChild(levelFg);
