@@ -30,10 +30,26 @@
 	var BAN_SPRING = 4;
 
 
+
+	// object types
+	var OBJ_SPRING      = 0;
+	var OBJ_SPLASH      = 1;
+	var OBJ_SMOKE       = 2;
+	var OBJ_YEL_BUTFLY  = 3;
+	var OBJ_PINK_BUTFLY = 4;
+	var OBJ_FUR         = 5;
+	var OBJ_FLESH       = 6;
+	var OBJ_FLESH_TRACE = 7;
+
+
+
 	/*
-	int x
-	x >> 4   ~>   ~~(x / 16)
+		FRIGGIN' SHIFT TRICKS
+
+		int x
+		x >> 4   ~>   ~~(x / 16)
 	*/
+
 
 
 	//GET_BAN_MAP_XY(x,y) ban_map[(y) >> 4][(x) >> 4]
@@ -299,8 +315,8 @@
 
 		players.forEach(function(pl) {
 			if (!pl.enabled) { return; }
-			var dx = (x - ((pl.sprite.position.x /*>> 16*/) + 8));
-			var dy = (y - ((pl.sprite.position.y /*>> 16*/) + 8));
+			var dx = (x - ((pl.sprite.position.x) + 8));
+			var dy = (y - ((pl.sprite.position.y) + 8));
 			var distSquared = dx*dx + dy*dy;
 			if (distSquared < closestDistSquared) {
 				closestPlayer = pl;
@@ -320,9 +336,9 @@
 
 	var onSfxLoaded = function() {
 		createPlayer();
-		createPlayer();
-		createPlayer();
-		createPlayer();
+		// createPlayer();
+		// createPlayer();
+		// createPlayer();
 
 		//console.log('closest to center: ', closestPlayerToPoint(W/2, H/2) );
 
@@ -425,6 +441,77 @@
 	};
 
 
+	var over16 = function(x) { return ~~(x/16); };
+
+	var getBelows = function(pl, isLeft) {
+		/*var xi = ~~( pl.sprite.position.x / 16);
+		var yi = ~~( pl.sprite.position.y / 16);
+		var o = {
+			l: xyToTile(xi     , yi + 16),
+			r: xyToTile(xi + 15, yi + 16),
+			b: xyToTile(xi +  8, yi + 16)
+		};*/
+
+		var x = ~~(pl.sprite.position.x + (isLeft ? 16 : 0) );
+		var y = ~~(pl.sprite.position.y);
+
+		var o = {
+			l:  xyToTile(x,    y),
+			r:  xyToTile(x+S,  y),
+			bl: xyToTile(x,    y+S),
+			br: xyToTile(x+S,  y+S),
+			b:  xyToTile(x+0.5,y+S)
+		};
+
+		console.log('%d |    | %d', o.l,       o.r);
+		console.log('%d | %d | %d', o.bl, o.b, o.br);
+
+		return o;
+	};
+
+
+	// player_action_left
+	var playerActionLeft = function(pl) {
+		var o = getBelows(pl, true);
+
+		pl.dx = (o.l === BAN_VOID) ? -1 : 0;
+		pl.dy = (o.b === BAN_VOID) ?  1 : 0;
+
+		/*if (o.b === BAN_ICE) {
+		}
+		else if (
+			(o.l !== BAN_SOLID && o.r === BAN_ICE) ||
+			(o.l === BAN_ICE   && o.r !== BAN_SOLID) ) {
+		}
+		else {
+		}*/
+	};
+
+	// player_action_right
+	var playerActionRight = function(pl) {
+		var o = getBelows(pl);
+
+		pl.dx = (o.r === BAN_VOID) ? 1 : 0;
+		pl.dy = (o.b === BAN_VOID) ? 1 : 0;
+
+		/*if (o.b === BAN_ICE) {
+		}
+		else if (
+			(o.l !== BAN_SOLID && o.r === BAN_ICE) ||
+			(o.l === BAN_ICE   && o.r !== BAN_SOLID) ) {
+		}
+		else {
+		}*/
+	};
+
+	var playerActionNone = function(pl) {
+		var o = getBelows(pl);
+
+		pl.dx = 0;
+		pl.dy = (o.b === BAN_VOID) ? 1 : 0;
+	};
+
+
 
 	var init = function() {
 		stage = new PIXI.Stage(0x000000);
@@ -460,10 +547,24 @@
 		
 		// UPDATE
 		players.forEach(function(pl) {
-			pl.dx = keys.isKeyDown(pl.kcL) ? -1 : (keys.isKeyDown(pl.kcR) ? 1 : 0);
-			pl.dy = keys.isKeyDown(pl.kcJ) ? -1 : 0;
-			pl.sprite.position.x += pl.dx;
-			pl.sprite.position.y += pl.dy;
+			// pl.dx = keys.isKeyDown(pl.kcL) ? -1 : (keys.isKeyDown(pl.kcR) ? 1 : 0);
+			// pl.dy = keys.isKeyDown(pl.kcJ) ? -1 : 0;
+			
+			if (keys.isKeyDown(pl.kcL)) {
+				playerActionLeft(pl);
+			}
+			else if (keys.isKeyDown(pl.kcR)) {
+				playerActionRight(pl);
+			}
+			else {
+				playerActionNone(pl);
+			}
+
+			pl.sprite.position.x += pl.dx * dt * 40;
+			pl.sprite.position.y += pl.dy * dt * 60;
+
+			console.log( pl.sprite.position.x.toFixed(2), pl.sprite.position.y.toFixed(2) );
+
 			pl.processSprite();
 		});
 

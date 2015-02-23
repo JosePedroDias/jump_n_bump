@@ -68,8 +68,8 @@
 	* `TODO` player\_action\_left(playerNum) and player\_action\_right(playerNum)
 	* `TODO` steer_players()
 	* `TODO` collision_check()
-	
-	functions ported
+	* `TODO` add_object()
+	* `TODO` update_objects()
 
 * ([menu.c](http://git.icculus.org/?p=crow/jumpnbump.git;a=blob_plain;f=menu.c;hb=e2bcb0a928cee4190ef0b86b06eb7ec083bf23f8))
 	* _
