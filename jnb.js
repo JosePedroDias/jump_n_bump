@@ -17,6 +17,10 @@
 	var t0 = -1/30;
 
 
+	var SFX_ON = false;
+	var MUSIC_ON = false;
+
+
 
 	// levelMap possibilities
 	var BAN_VOID   = 0;
@@ -25,6 +29,39 @@
 	var BAN_ICE	   = 3;
 	var BAN_SPRING = 4;
 
+
+	/*
+	int x
+	x >> 4   ~>   ~~(x / 16)
+	*/
+
+
+	//GET_BAN_MAP_XY(x,y) ban_map[(y) >> 4][(x) >> 4]
+	var xyToTile = function(x, y) {
+		return levelMap[ y>>4 ][ x>>4 ];
+	};
+
+	// #define GET_BAN_MAP_IN_WATER(s1, s2)
+	/*(
+		GET_BAN_MAP_XY( (s1),       ((s2) + 7)) == BAN_VOID ||
+		GET_BAN_MAP_XY(((s1) + 15), ((s2) + 7)) == BAN_VOID
+	) &&
+	(
+		GET_BAN_MAP_XY( (s1),       ((s2) + 8)) == BAN_WATER ||
+		GET_BAN_MAP_XY(((s1) + 15), ((s2) + 8)) == BAN_WATER
+	)*/
+	var isXyInWater = function(x, y) {
+		return (
+			(
+				xyToTile(x,    y+7) === BAN_VOID ||
+				xyToTile(x+15, y+7) === BAN_VOID
+			) &&
+			(
+				xyToTile(x,    y+8) === BAN_WATER ||
+				xyToTile(x+15, y+8) === BAN_WATER
+			)
+		);
+	};
 
 
 	var stage;
@@ -124,13 +161,40 @@
 
 
 
-	var createPlayer = function(idx) {
+	var positionPlayer = function(playerNum) {
+		var x, y, pl = players[playerNum];
+
+		while (true) {
+			while (true) { // choose position in void and below solid or ice
+				x = rnd(WW);
+				y = rnd(HH-1);
+				if (levelMap[y][x] === BAN_VOID &&
+					( levelMap[y+1][x] === BAN_SOLID || levelMap[y+1][x] === BAN_ICE ) ) { break; }
+			}
+
+			if (players.length > 1 && players.some(function(pll) { // check player to player collisions
+				if (!pll.enabled) { return; } // disabled - skip
+				if (pll === pl) { return; } // same player - skip
+				if ( (Math.abs( x*S - pll.sprite.position.x ) < 2*S) &&
+					 (Math.abs( y*S - pll.sprite.position.y ) < 2*S) ) { return true; } // partial collision - abort this position
+			})) { continue; }
+			else {
+				// console.log('%d x %d', x, y);
+				return [x, y]; // all is well...
+			}
+		}
+	};
+
+
+
+	var createPlayer = function() {
+		var idx = players.length;
+
 		var tex = sheets.rabbit.splice(0, 18);
 		var spr = new PIXI.Sprite(tex[0]);
-		spr.position.x = W/2;
-		spr.position.y = H/2;
 
 		var o = {
+			enabled: true,
 			index: idx,
 			score: 0,
 			kcL: keys.keyCodes[ bindings[idx].l ],
@@ -182,9 +246,15 @@
 			}
 		};
 		stage.addChild(o.sprite);
+		players.push(o);
+
+		var pos = positionPlayer(idx);
+		spr.position.x = pos[0]*S; // W/2;
+		spr.position.y = pos[1]*S; // H/2;
 
 		return o;
 	};
+
 
 
 	var updateScore = function(playerIdx, score) {
@@ -194,6 +264,7 @@
 		playerNums[0].texture = sheets.numbers[ tens ];
 		playerNums[1].texture = sheets.numbers[ units ];
 	};
+
 
 
 	var setupScores = function() {
@@ -229,41 +300,50 @@
 	};
 
 
-	var positionPlayer = function(playerNum) { // TODO UNFINISHED
-		var x, y, pl = players[playerNum];
 
-		while (true) {
-			while (true) { // choose position in void and below solid or ice
-				x = rnd(W);
-				y = rnd(H);
-				if (levelMap[y][x] === BAN_VOID &&
-					( levelMap[y+1][x] === BAN_SOLID || levelMap[y+1][x] === BAN_ICE ) ) { break; }
-			}
+	var closestPlayerToPoint = function(x, y) {
+		var closestPlayer, closestDistSquared = Number.MAX_VALUE;
 
-			if (players.some(function(pll) { // check player to player collisions
-				if (pll === pl) { return; }
-				//if (Math.abs()) // TODO
-			})) { break; }
-			else {
-				return; // all is well...
+		players.forEach(function(pl) {
+			if (!pl.enabled) { return; }
+			var dx = (x - ((pl.sprite.position.x >> 16) + 8));
+			var dy = (y - ((pl.sprite.position.y >> 16) + 8));
+			var distSquared = dx*dx + dy*dy;
+			if (distSquared < closestDistSquared) {
+				closestPlayer = pl;
+				closestDistSquared = distSquared;
 			}
-		}
+		});
+
+		if (closestPlayer === undefined) { return; }
+
+		return {
+			player: closestPlayer,
+			dist:   Math.sqrt(closestDistSquared)
+		};
 	};
 
 
 
 	var onSfxLoaded = function() {
-		players.push( createPlayer(0) );
-		//players.push( createPlayer(1) );
-		//players.push( createPlayer(2) );
-		//players.push( createPlayer(3) );
+		createPlayer();
+		createPlayer();
+		createPlayer();
+		createPlayer();
+
+		/*players.push( createPlayer(0) );
+		players.push( createPlayer(1) );
+		players.push( createPlayer(2) );
+		players.push( createPlayer(3) );*/
 
 		var levelFg = new PIXI.Sprite( textures.levelFg );
 		stage.addChild(levelFg);
 
 		setupScores();
 
-		playSound(sounds.bumpM, true);
+		if (MUSIC_ON) {
+			playSound(sounds.bumpM, true);
+		}
 
 		keys.onKeyDown(function(kc) {
 			players.some(function(pl) {
@@ -274,7 +354,12 @@
 					pl.setAnim('walk_r'); return true;
 				}
 				else if (kc === pl.kcJ) {
-					pl.setAnim('jump_' + pl.getDir()); playSound(sounds.jump); pl.incrScore(); return true;	
+					pl.setAnim('jump_' + pl.getDir());
+					if (SFX_ON) {
+						playSound(sounds.jump);
+					}
+					pl.incrScore();
+					return true;	
 				}
 			});
 		});
@@ -309,7 +394,7 @@
 			for (x = 0; x < WW; ++x) {
 				//i = (x+y) % 2;
 				i = levelMap[y][x];
-				g.beginFill( colors[i] , 0.5);
+				g.beginFill( colors[i] , 0.33);
 				g.drawRect(x*S, y*S, S, S);
 			}
 		}
