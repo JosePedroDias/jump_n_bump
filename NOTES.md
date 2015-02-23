@@ -28,6 +28,14 @@
 	4	spring
 
 
+## sprites
+
+	numbers 0- 9       16x22
+	font    0-80   max 12x12
+	objects 0-80   max 30x12
+	rabbit  0-71   max 17x16 (18x4colors)
+
+
 ## misc
 
 	You can jump up to 3 blocks.

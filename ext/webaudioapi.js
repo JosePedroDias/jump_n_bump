@@ -3,31 +3,18 @@
 // Start off by initializing a new context.
 context = new (window.AudioContext || window.webkitAudioContext)();
 
-if (!context.createGain)
-  context.createGain = context.createGainNode;
-if (!context.createDelay)
-  context.createDelay = context.createDelayNode;
-if (!context.createScriptProcessor)
-  context.createScriptProcessor = context.createJavaScriptNode;
+if (!context.createGain)            context.createGain            = context.createGainNode;
+if (!context.createDelay)           context.createDelay           = context.createDelayNode;
+if (!context.createScriptProcessor) context.createScriptProcessor = context.createJavaScriptNode;
 
-// shim layer with setTimeout fallback
-/*window.requestAnimFrame = (function(){
-return  window.requestAnimationFrame       || 
-  window.webkitRequestAnimationFrame || 
-  window.mozRequestAnimationFrame    || 
-  window.oRequestAnimationFrame      || 
-  window.msRequestAnimationFrame     || 
-  function( callback ){
-  window.setTimeout(callback, 1000 / 60);
-};
-})();*/
-
-
-function playSound(buffer, time) {
+function playSound(buffer, loop, time) {
   var source = context.createBufferSource();
   source.buffer = buffer;
+  if (loop) {
+    source.loop = true;
+  }
   source.connect(context.destination);
-  source[source.start ? 'start' : 'noteOn'](time);
+  source[source.start ? 'start' : 'noteOn'](time || 0);
 }
 
 function loadSounds(obj, soundMap, callback) {
@@ -51,9 +38,6 @@ function loadSounds(obj, soundMap, callback) {
   });
   bufferLoader.load();
 }
-
-
-
 
 function BufferLoader(context, urlList, callback) {
   this.context = context;

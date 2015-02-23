@@ -10,7 +10,9 @@
 
 
 	var  W = 400; // 22 (+3 UX)
+	var  WW = 22;
 	var  H = 256; // 16
+	var  HH = 16;
 	var  S =  16;
 	var t0 = -1/30;
 
@@ -223,18 +225,7 @@
 
 		setupScores();
 
-		/*updateScore(0, 12);
-		updateScore(1, 34);
-		updateScore(2, 56);
-		updateScore(3, 78);*/
-
-		requestAnimFrame( animate );
-
-		setTimeout(function() {
-			playSound(sounds.bumpM, 0);
-		}, 1500);
-
-
+		playSound(sounds.bumpM, true);
 
 		keys.onKeyDown(function(kc) {
 			players.some(function(pl) {
@@ -245,7 +236,7 @@
 					pl.setAnim('walk_r'); return true;
 				}
 				else if (kc === pl.kcJ) {
-					pl.setAnim('jump_' + pl.getDir()); playSound(sounds.jump, 0); pl.incrScore(); return true;	
+					pl.setAnim('jump_' + pl.getDir()); playSound(sounds.jump); pl.incrScore(); return true;	
 				}
 			});
 		});
@@ -266,6 +257,25 @@
 				}
 			});
 		});
+
+		requestAnimFrame( animate );
+	};
+
+
+
+	var tilesOverlay = function() {
+		var g = new PIXI.Graphics();
+		var colors = [0x000000, 0xFF0000, 0x00FF00, 0x0000FF, 0xFFFFFF]; // 0=air, 1=ground, 2=water, 3=ice, 4=spring
+		var x, y, i;
+		for (y = 0; y < HH; ++y) {
+			for (x = 0; x < WW; ++x) {
+				//i = (x+y) % 2;
+				i = levelMap[y][x];
+				g.beginFill( colors[i] , 0.5);
+				g.drawRect(x*S, y*S, S, S);
+			}
+		}
+		stage.addChild(g);
 	};
 
 
@@ -295,6 +305,8 @@
 		//var s = new PIXI.Sprite( sheets.font[30] ); s.position = new PIXI.Point(30, 30); stage.addChild(s); // 0-80
 		//var s = new PIXI.Sprite( sheets.objects[0] ); stage.addChild(s); // 0-80
 		//var s = new PIXI.Sprite( sheets.rabbit[0] ); stage.addChild(s); // 0-71 (18x4)
+
+		tilesOverlay();
 
 		loadSfx(onSfxLoaded);
 	};
@@ -337,7 +349,6 @@
 		players.forEach(function(pl) {
 			pl.dx = keys.isKeyDown(pl.kcL) ? -1 : (keys.isKeyDown(pl.kcR) ? 1 : 0);
 			pl.dy = keys.isKeyDown(pl.kcJ) ? -1 : 0;
-			//if (dy === -1) { playSound(sounds.jump, 0);}
 			pl.sprite.position.x += pl.dx;
 			pl.sprite.position.y += pl.dy;
 			pl.processSprite();
