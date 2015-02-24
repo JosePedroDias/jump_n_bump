@@ -54,6 +54,7 @@
 
 	//GET_BAN_MAP_XY(x,y) ban_map[(y) >> 4][(x) >> 4]
 	var xyToTile = function(x, y) {
+		if (x < 0 || y < 0 || x >= W || y >= H) { return BAN_SOLID; }
 		return levelMap[ y>>4 ][ x>>4 ];
 	};
 
@@ -209,6 +210,7 @@
 			kcR: keys.keyCodes[ bindings[idx].r ],
 			kcJ: keys.keyCodes[ bindings[idx].j ],
 			active: true,
+			jump: 0,
 			textures: tex,
 			sprite:   spr,
 			animName: 'stand_r',
@@ -441,77 +443,6 @@
 	};
 
 
-	var over16 = function(x) { return ~~(x/16); };
-
-	var getBelows = function(pl, isLeft) {
-		/*var xi = ~~( pl.sprite.position.x / 16);
-		var yi = ~~( pl.sprite.position.y / 16);
-		var o = {
-			l: xyToTile(xi     , yi + 16),
-			r: xyToTile(xi + 15, yi + 16),
-			b: xyToTile(xi +  8, yi + 16)
-		};*/
-
-		var x = ~~(pl.sprite.position.x + (isLeft ? 16 : 0) );
-		var y = ~~(pl.sprite.position.y);
-
-		var o = {
-			l:  xyToTile(x,    y),
-			r:  xyToTile(x+S,  y),
-			bl: xyToTile(x,    y+S),
-			br: xyToTile(x+S,  y+S),
-			b:  xyToTile(x+0.5,y+S)
-		};
-
-		console.log('%d |    | %d', o.l,       o.r);
-		console.log('%d | %d | %d', o.bl, o.b, o.br);
-
-		return o;
-	};
-
-
-	// player_action_left
-	var playerActionLeft = function(pl) {
-		var o = getBelows(pl, true);
-
-		pl.dx = (o.l === BAN_VOID) ? -1 : 0;
-		pl.dy = (o.b === BAN_VOID) ?  1 : 0;
-
-		/*if (o.b === BAN_ICE) {
-		}
-		else if (
-			(o.l !== BAN_SOLID && o.r === BAN_ICE) ||
-			(o.l === BAN_ICE   && o.r !== BAN_SOLID) ) {
-		}
-		else {
-		}*/
-	};
-
-	// player_action_right
-	var playerActionRight = function(pl) {
-		var o = getBelows(pl);
-
-		pl.dx = (o.r === BAN_VOID) ? 1 : 0;
-		pl.dy = (o.b === BAN_VOID) ? 1 : 0;
-
-		/*if (o.b === BAN_ICE) {
-		}
-		else if (
-			(o.l !== BAN_SOLID && o.r === BAN_ICE) ||
-			(o.l === BAN_ICE   && o.r !== BAN_SOLID) ) {
-		}
-		else {
-		}*/
-	};
-
-	var playerActionNone = function(pl) {
-		var o = getBelows(pl);
-
-		pl.dx = 0;
-		pl.dy = (o.b === BAN_VOID) ? 1 : 0;
-	};
-
-
 
 	var init = function() {
 		stage = new PIXI.Stage(0x000000);
@@ -533,9 +464,23 @@
 	};
 
 
-	var elInArr = function(el, arr) {
-		return arr.indexOf(el) !== -1;
+
+	var getBelows = function(pl) {
+		var x = pl.sprite.position.x;
+		var y = pl.sprite.position.y;
+		
+		var o = {
+			l:  xyToTile(x,        y),
+			b:  xyToTile(x+0.5*S, y+S),
+			r:  xyToTile(x+S,      y)
+		};
+
+		//console.log('%d | %d | %d', o.l, o.b, o.r);
+
+		return o;
 	};
+
+
 
 	var animate = function(t) {
 		requestAnimFrame( animate );
@@ -549,30 +494,39 @@
 		players.forEach(function(pl) {
 			// pl.dx = keys.isKeyDown(pl.kcL) ? -1 : (keys.isKeyDown(pl.kcR) ? 1 : 0);
 			// pl.dy = keys.isKeyDown(pl.kcJ) ? -1 : 0;
+
+			var o = getBelows(pl);
+
+			if (keys.isKeyDown(pl.kcJ) && o.b !== BAN_VOID) {
+				pl.jump = 3.2;
+			};
 			
 			if (keys.isKeyDown(pl.kcL)) {
-				playerActionLeft(pl);
+				pl.dx = (o.l === BAN_VOID) ? -1 : 0;
 			}
 			else if (keys.isKeyDown(pl.kcR)) {
-				playerActionRight(pl);
+				pl.dx = (o.r === BAN_VOID) ? 1 : 0;
 			}
 			else {
-				playerActionNone(pl);
+				pl.dx = 0;
 			}
 
-			pl.sprite.position.x += pl.dx * dt * 40;
-			pl.sprite.position.y += pl.dy * dt * 60;
+			pl.dy = (o.b === BAN_VOID) ? 1 : 0;
 
-			console.log( pl.sprite.position.x.toFixed(2), pl.sprite.position.y.toFixed(2) );
+			pl.sprite.position.x += pl.dx * dt * 70;
+			pl.sprite.position.y += (pl.dy - pl.jump) * dt * 140;
+
+			if (pl.jump > 0) {
+				pl.jump -= 0.1;
+			}
+
+			//console.log( pl.sprite.position.x.toFixed(2), pl.sprite.position.y.toFixed(2) );
 
 			pl.processSprite();
 		});
 
-
 		renderer.render(stage);
 	};
-
-
 
 	init();
 
