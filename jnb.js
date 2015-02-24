@@ -338,9 +338,9 @@
 
 	var onSfxLoaded = function() {
 		createPlayer();
-		// createPlayer();
-		// createPlayer();
-		// createPlayer();
+		createPlayer();
+		createPlayer();
+		createPlayer();
 
 		//console.log('closest to center: ', closestPlayerToPoint(W/2, H/2) );
 
@@ -437,7 +437,7 @@
 		//var s = new PIXI.Sprite( sheets.objects[0] ); stage.addChild(s); // 0-80
 		//var s = new PIXI.Sprite( sheets.rabbit[0] ); stage.addChild(s); // 0-71 (18x4)
 
-		tilesOverlay();
+		//tilesOverlay();
 
 		loadSfx(onSfxLoaded);
 	};
@@ -470,9 +470,10 @@
 		var y = pl.sprite.position.y;
 		
 		var o = {
-			l:  xyToTile(x,        y),
-			b:  xyToTile(x+0.5*S, y+S),
-			r:  xyToTile(x+S,      y)
+			t: xyToTile(x+0.5*S, y),
+			l: xyToTile(x,       y),
+			b: xyToTile(x+0.5*S, y+S),
+			r: xyToTile(x+S,     y)
 		};
 
 		//console.log('%d | %d | %d', o.l, o.b, o.r);
@@ -488,13 +489,9 @@
 		t /= 1000;
 		var dt = t - t0;
 		t0 = t;
-		//log(t, dt);
 		
 		// UPDATE
 		players.forEach(function(pl) {
-			// pl.dx = keys.isKeyDown(pl.kcL) ? -1 : (keys.isKeyDown(pl.kcR) ? 1 : 0);
-			// pl.dy = keys.isKeyDown(pl.kcJ) ? -1 : 0;
-
 			var o = getBelows(pl);
 
 			if (keys.isKeyDown(pl.kcJ) && o.b !== BAN_VOID) {
@@ -513,14 +510,14 @@
 
 			pl.dy = (o.b === BAN_VOID) ? 1 : 0;
 
+			if (o.t !== BAN_VOID && pl.dy - pl.jump < 0) { pl.jump = 0; }
+
 			pl.sprite.position.x += pl.dx * dt * 70;
 			pl.sprite.position.y += (pl.dy - pl.jump) * dt * 140;
 
 			if (pl.jump > 0) {
 				pl.jump -= 0.1;
 			}
-
-			//console.log( pl.sprite.position.x.toFixed(2), pl.sprite.position.y.toFixed(2) );
 
 			pl.processSprite();
 		});
