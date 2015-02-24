@@ -17,8 +17,8 @@
 	var t0 = -1/30;
 
 
-	var SFX_ON = false;
-	var MUSIC_ON = false;
+	var SFX_ON   = true;
+	var MUSIC_ON = true;
 
 
 
@@ -363,10 +363,6 @@
 				}
 				else if (kc === pl.kcJ) {
 					pl.setAnim('jump_' + pl.getDir());
-					if (SFX_ON) {
-						playSound(sounds.jump);
-					}
-					pl.incrScore();
 					return true;	
 				}
 			});
@@ -494,8 +490,12 @@
 		players.forEach(function(pl) {
 			var o = getBelows(pl);
 
-			if (keys.isKeyDown(pl.kcJ) && o.b !== BAN_VOID) {
+			if (pl.jump <= 0 && keys.isKeyDown(pl.kcJ) && o.b !== BAN_VOID) {
 				pl.jump = 3.2;
+				if (SFX_ON) {
+					playSound(sounds.jump);
+				}
+				pl.incrScore();
 			};
 			
 			if (keys.isKeyDown(pl.kcL)) {
@@ -512,8 +512,8 @@
 
 			if (o.t !== BAN_VOID && pl.dy - pl.jump < 0) { pl.jump = 0; }
 
-			pl.sprite.position.x += pl.dx * dt * 70;
-			pl.sprite.position.y += (pl.dy - pl.jump) * dt * 140;
+			pl.sprite.position.x += pl.dx * dt * 110;
+			pl.sprite.position.y += (pl.dy - pl.jump) * dt * 110;
 
 			if (pl.jump > 0) {
 				pl.jump -= 0.1;

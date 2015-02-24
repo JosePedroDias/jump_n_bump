@@ -4,7 +4,7 @@ html, body {
 
 body {
 	overflow: hidden;
-	background-color: #DDD;
+	background-color: #000;
 }
 
 canvas {
@@ -14,7 +14,7 @@ canvas {
 	margin-left: -200px;
 	margin-top:  -128px;
 	
-	/*transform: scale(2);*/
+	transform: scale(2);
 
 	image-rendering: -moz-crisp-edges; /* firefox */
 	-ms-interpolation-mode: nearest-neighbor; /* ie */
